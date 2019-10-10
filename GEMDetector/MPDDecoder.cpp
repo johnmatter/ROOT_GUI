@@ -17,7 +17,7 @@
 
 #include "MPDStructure.h"
 #include "MPDRawParser.h"
-#include "GEMIDGenerator.h"
+#include "GEMUIDGenerator.h"
 #include "GEMConfigure.h"
 #include "../src/Benchmark.h"
 #include "unordered_map"

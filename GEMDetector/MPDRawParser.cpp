@@ -12,7 +12,7 @@
 
 #include "MPDRawParser.h"
 #include "MPDStructure.h"
-#include "GEMIDGenerator.h"
+#include "GEMUIDGenerator.h"
 MPDRawParser::MPDRawParser() {
 	// TODO Auto-generated constructor stub
 

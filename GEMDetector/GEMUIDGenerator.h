@@ -1,12 +1,12 @@
 /*
- * GEMIDGenerator.h
+ * GEMUIDGenerator.h
  *
  *  Created on: Jul 5, 2018
  *      Author: newdriver
  */
 
-#ifndef GEMIDGENERATOR_H_
-#define GEMIDGENERATOR_H_
+#ifndef GEMUIDGENERATOR_H_
+#define GEMUIDGENERATOR_H_
 
 namespace GEM{
 
@@ -79,4 +79,4 @@ T getCrateID(T uid) {
 
 
 
-#endif /* GEMIDGENERATOR_H_ */
+#endif /* GEMUIDGENERATOR_H_ */

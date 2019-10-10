@@ -19,7 +19,7 @@
 #include <TH2F.h>
 #include <TVector2.h>
 #include <TVector3.h>
-#include "../GEMDetector/GEMIDGenerator.h"
+#include "../GEMDetector/GEMUIDGenerator.h"
 
 struct GUICanvasDataStream{
 public:

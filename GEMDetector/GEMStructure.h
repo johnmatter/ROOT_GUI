@@ -15,7 +15,7 @@
 #include "stdio.h"
 #include <algorithm>
 
-#include "GEMIDGenerator.h"
+#include "GEMUIDGenerator.h"
 namespace GEM{
 
 struct apvMapping {
@@ -41,7 +41,7 @@ public:
 			int CrateID = atoi(result.at(1).c_str());
 			int layer = atoi(result.at(2).c_str());
 			int MPDID = atoi(result.at(3).c_str());
-			int GEMID = atoi(result.at(4).c_str());
+			int GEMLOC = atoi(result.at(4).c_str());
 			int dimension = atoi(result.at(5).c_str());
 			int ADCID = atoi(result.at(6).c_str());
 			int I2C = atoi(result.at(7).c_str());
@@ -50,7 +50,7 @@ public:
 			std::string other = result.at(10);
 			int apvUniqueID = GEM::GetUID(CrateID, MPDID, ADCID,0);
 
-			apvMap[apvUniqueID].push_back(GEMID);      // 0
+			apvMap[apvUniqueID].push_back(GEMLOC);      // 0
 			apvMap[apvUniqueID].push_back(dimension);  // 1
 			apvMap[apvUniqueID].push_back(Pos);        // 2
 			apvMap[apvUniqueID].push_back(Invert);     // 3
