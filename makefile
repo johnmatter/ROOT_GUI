@@ -39,6 +39,11 @@ else
 LIBS      +=${ROOTLIBS} ${ROOTGLIBS} -lMinuit -L${EVIO_LIB}  -lexpat ${EVIO_LIB}/libevioxx.dylib ${EVIO_LIB}/libevio.dylib 
 endif
 
+# Allow user to specify a directory containing libraries if not in places ld usually looks.
+# # For example, I needed to install libconfig in /home/sbs-onl so I do:
+# #      export EXTRA_LIB=/home/sbs-onl/local/lib
+LIBS   +=-L${EXTRA_LIB}
+
 GLIBS     +=${ROOTGLIBS} ${SYSLIBS}
 LINKOPTION += -pthread -lm -ldl -lconfig++
 
