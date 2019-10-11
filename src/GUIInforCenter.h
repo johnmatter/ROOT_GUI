@@ -79,9 +79,9 @@ private:
 					int i =0;
 					for(auto apv : mpd_iter->second){
 									TH1F *h = new TH1F(
-											Form("crate%d_mpd%", GEM::getCrateID(tabcanvasid),
+											Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
 													GEM::getMPDID(tabcanvasid)),
-											Form("crate%d_mpd%", GEM::getCrateID(tabcanvasid),
+											Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
 													GEM::getMPDID(tabcanvasid)), 800, 0, 800);
 									for(int i = 0; i <apv.size();i++){
 											h->Fill(i+1,apv.at(i));
@@ -91,7 +91,7 @@ private:
 													}
 									histo_1h[tabcanvasid].push_back(h);
 									histo_1h_arry[tabcanvasid][i%4][i/4]=h;//->Clone("test");
-									histo_1h_arry[tabcanvasid][i%4][i/4]->SetTitle(Form("crate%d_mpd%", GEM::getCrateID(tabcanvasid),
+									histo_1h_arry[tabcanvasid][i%4][i/4]->SetTitle(Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
 											GEM::getMPDID(tabcanvasid)));
 									i++;
 					}
