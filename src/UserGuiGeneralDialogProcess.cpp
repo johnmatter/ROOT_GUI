@@ -45,9 +45,9 @@ std::string UserGuiGeneralDialogProcess::DefaultPath(std::string setpath ){
 std::string UserGuiGeneralDialogProcess::Browser_file() {
 	std::vector<std::string>tRawFileList;
 	const char *filetype[]= {
+					"All files", "*",
 					"ROOT files", "*.root",
 					"Data files", "*.dat",
-					"All files", "*",
 					0, 0
 			};
 	static TString dir(pDefaultPath.c_str());
@@ -83,9 +83,9 @@ std::string UserGuiGeneralDialogProcess::Browser_file() {
 std::string UserGuiGeneralDialogProcess::Browser_file(std::string path) {
 	std::vector<std::string>tRawFileList;
 	const char *filetype[]= {
+					"All files", "*",
 					"ROOT files", "*.root",
 					"Data files", "*.dat",
-					"All files", "*",
 					0, 0
 			};
 	static TString dir(path.c_str());
@@ -216,9 +216,9 @@ std::string UserGuiGeneralDialogProcess::Browser_file(std::string path,std::stri
 std::vector<std::string> UserGuiGeneralDialogProcess::Browser_files() {
 	std::vector<std::string>tRawFileList;
 	const char *filetype[]= {
+					"All files", "*",
 					"ROOT files", "*.root",
 					"Data files", "*.dat",
-					"All files", "*",
 					0, 0
 			};
 	static TString dir(pDefaultPath.c_str());
@@ -246,9 +246,9 @@ std::vector<std::string> UserGuiGeneralDialogProcess::Browser_files() {
 std::vector<std::string> UserGuiGeneralDialogProcess::Browser_files(std::string path) {
 	std::vector<std::string>tRawFileList;
 	const char *filetype[]= {
+					"All files", "*",
 					"ROOT files", "*.root",
 					"Data files", "*.dat",
-					"All files", "*",
 					0, 0
 			};
 	static TString dir(path.c_str());
