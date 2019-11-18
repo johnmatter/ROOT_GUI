@@ -83,14 +83,14 @@ private:
 													GEM::getMPDID(tabcanvasid)),
 											Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
 													GEM::getMPDID(tabcanvasid)), 800, 0, 800);
-									for(int i = 0; i <apv.size();i++){
-											h->Fill(i+1,apv.at(i));
-											h->GetYaxis()->SetRangeUser(0,3000);
-											h->SetYTitle("ADC");
-											h->SetXTitle("channel");
-													}
+									for(int j = 0; j <apv.size(); j++){
+										h->Fill(j+1, apv.at(j));
+										h->GetYaxis()->SetRangeUser(0,3000);
+										h->SetYTitle("ADC");
+										h->SetXTitle("channel");
+									}
 									histo_1h[tabcanvasid].push_back(h);
-									histo_1h_arry[tabcanvasid][i%4][i/4]=h;//->Clone("test");
+									histo_1h_arry[tabcanvasid][i%4][i/4]=h;
 									histo_1h_arry[tabcanvasid][i%4][i/4]->SetTitle(Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
 											GEM::getMPDID(tabcanvasid)));
 									i++;
