@@ -36,7 +36,7 @@ public:
 			getline(ss,substr,',');
 			result.push_back(substr);
 		}
-		if (result.size() == 12) {
+		if (result.size() == 14) {
 			std::string item = result.at(0);
 			int CrateID = atoi(result.at(1).c_str());
 			int layer = atoi(result.at(2).c_str());
@@ -48,12 +48,17 @@ public:
 			int Pos = atoi(result.at(8).c_str());
 			int Invert = atoi(result.at(9).c_str());
 			std::string other = result.at(10);
+			int backplane = atoi(result.at(11).c_str());
+			int GEMPOS = atoi(result.at(12).c_str());
 			int apvUniqueID = GEM::GetUID(CrateID, MPDID, ADCID,0);
 
 			apvMap[apvUniqueID].push_back(GEMID);      // 0
 			apvMap[apvUniqueID].push_back(dimension);  // 1
 			apvMap[apvUniqueID].push_back(Pos);        // 2
 			apvMap[apvUniqueID].push_back(Invert);     // 3
+			apvMap[apvUniqueID].push_back(backplane);  // 4
+			apvMap[apvUniqueID].push_back(layer);      // 5
+			apvMap[apvUniqueID].push_back(GEMPOS);     // 6
 
 			CalculateMap();
 		} else {
