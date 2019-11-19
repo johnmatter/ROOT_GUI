@@ -32,7 +32,7 @@
 
 struct Mapping_structure{
 	int MPDID;
-	int GEMLOC;
+	int GEMID;
 	int Xis; // x:0 y:1
 	int ADCid;
 	int I2C;
