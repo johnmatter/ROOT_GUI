@@ -5,7 +5,7 @@ All tracking work done by this class.
 **************************************/
 
 #ifndef GEMTRACKING_H
-#define GEM_TRACKING_H
+#define GEMTRACKING_H
 
 #include <cstdlib>
 #include <cstdio>
