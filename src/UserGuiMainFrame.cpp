@@ -640,15 +640,15 @@ void UserGuiMainFrame::fRawModeProcess(int entries, string rawfilename){
 #ifdef __DECODER_DEBUG_MODE
 	rawfilename="/home/newdriver/Storage/Server/JLabFarm/mpd_ssp_3300.dat.0";
 #endif
-//        if(vDecoderBuffer->Find(rawfilename->c_str())==vDecoderBuffer->end()){
- //          vDecoderBuffer[rawfilename->c_str()]=new MPDDecoder(rawfilename.c_str());
- //       }else
-{
-	
-        MPDDecoder *decoder=new MPDDecoder(rawfilename.c_str());
-	decoder->Connect("GUICanvasTabDraw(GUICanvasDataStream *)","UserGuiMainFrame",this,"fCanvasDraw(GUICanvasDataStream *)");
-	decoder->RawDisplay(entries);
-      }
+
+	// if(vDecoderBuffer->Find(rawfilename->c_str())==vDecoderBuffer->end()){
+	// 	vDecoderBuffer[rawfilename->c_str()]=new MPDDecoder(rawfilename.c_str());
+	// } else {
+		MPDDecoder *decoder=new MPDDecoder(rawfilename.c_str());
+		decoder->Connect("GUICanvasTabDraw(GUICanvasDataStream *)","UserGuiMainFrame",this,"fCanvasDraw(GUICanvasDataStream *)");
+		decoder->RawDisplay(entries);
+	// }
+
 }
 
 void UserGuiMainFrame::fPedestalModeProcess(int entries,std::string rawfilename){

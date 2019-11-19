@@ -58,7 +58,7 @@ void MPDDecoder::LoadFile(std::string fname){
 }
 
 void MPDDecoder::RawDisplay(uint id) {
-        std::cout<<"Check size :"<< Rawstream.size() << "   end eventid:"<<Rawstream.end()->first<<std::endl;
+	std::cout<<"Check size :"<< Rawstream.size() << "   end eventid:"<<Rawstream.end()->first<<std::endl;
 	if ((Rawstream.size() == 0 )|| (id>(Rawstream.end()->first))) {
 		std::cout<<"read raw "<<(Rawstream.end()->first)<< " to " << Rawstream.end()->first+50<<std::endl;
 		MPDRawParser *rawparser = new MPDRawParser();
@@ -70,12 +70,12 @@ void MPDDecoder::RawDisplay(uint id) {
 			stream->LoadData(rawparser->GetDecoded());
 			Rawstream[Rawstream.end()->first+evtid] = stream;
 		}
-               RawDisplay(id);
+		RawDisplay(id);
 	}
-       
 
 	if(Rawstream.find(id)!=Rawstream.end()){
-		CanvasTabDisplay(Rawstream[id]);      // load to display
+		// load to display
+		CanvasTabDisplay(Rawstream[id]);
 	}else{
 		std::cout<<"miao miao miao"<<std::endl;
 	}
