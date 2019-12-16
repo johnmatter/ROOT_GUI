@@ -17,7 +17,7 @@ namespace GEM{
 enum DAQTag{
 	MPD_tag  = 10,
 	FADC_tag = 3,
-	TDC_tag  =6
+	TDC_tag  = 6
 };
 
 enum MPD4_VME_RawTag{
@@ -27,7 +27,7 @@ enum MPD4_VME_RawTag{
 	TRIGGER_TIME   = 0x3,
 	APV_CH_DATA    = 0x4,
 	EVENT_TRAILER  = 0x5,
-	DATA_NOT_VALID = 0x6,
+	CRATE_ID       = 0x6,
 	FILLER_WORD    = 0x7
 };
 }

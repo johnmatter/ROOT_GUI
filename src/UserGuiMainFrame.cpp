@@ -86,7 +86,7 @@ UserGuiMainFrame::UserGuiMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMa
 	//workZone  -> display Sub-zone
 	fWorkZoneCanvasFrame  = new TGVerticalFrame(fWorkZoneFrame, 10,10);
 	TGVertical3DLine * WorkZoneSeparation= new TGVertical3DLine(fWorkZoneFrame,10,10);
-	fWorkZoneTab= new TGTab(fWorkZoneCanvasFrame);
+	fWorkZoneTab = new TGTab(fWorkZoneCanvasFrame);
 
 //	SetWorkZoneTab();
 	fWorkZoneCanvasFrame->AddFrame(fWorkZoneTab, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
@@ -174,16 +174,18 @@ void UserGuiMainFrame::SetWorkZoneTab(){
 		fWorkZoneTab->RemoveTab(0);
 	};
 	fWorkZoneTabDefultFrame = fWorkZoneTab->AddTab("WorkStatus");
-	// this is just used for draw the GUI, so efficiency is not the first concern
-	std::map<int,std::string> tablist;
+
+	std::map<int /*tab id 1*/, std::map<int /*tab id 2*/, std::string>> tablist;
+
 	GEMConfigure *cfg = GEMConfigure::GetInstance();
+
 	if (vWorkMode == 'R') {
 		for(auto apv : cfg->GetMapping().GetMPDList()){
-			tablist[apv]=Form("crate%d_mpd%d",(GEM::getCrateID(apv)),(GEM::getMPDID(apv)));
+			tablist[GEM::getCrateID(apv)][GEM::getMPDID(apv)]=Form("crate%d_mpd%d",(GEM::getCrateID(apv)),(GEM::getMPDID(apv)));
 		}
 	}else if(vWorkMode == 'Z'){
 		for(auto module :cfg->GetMapping().GetGEMModuleList()){
-			tablist[module]=Form("Module%d",module);
+			tablist[0][module]=Form("Module%d",module);
 		}
 	}
 	SetWorkZoneTab(tablist);
@@ -191,35 +193,71 @@ void UserGuiMainFrame::SetWorkZoneTab(){
 	Resize();   //resize to default size
 }
 
-/*
- *
- */
-void UserGuiMainFrame::SetWorkZoneTab(std::vector<int>tablist){
+// This doesn't seem to be used, so I'm commenting it out for the moment - JM Nov 2019
+// void UserGuiMainFrame::SetWorkZoneTab(std::vector<int>tablist){
+// 	fWorkZoneTabSubFrame.clear();
+// 	fWorkZoneTabEnbeddedCanvas.clear();
+// 	cfWorkZoneTabCanvas.clear();
+// 	for(auto tab:tablist){
+// 		fWorkZoneTabSubFrame[tab]=((fWorkZoneTab->AddTab(Form("crate%d_mpd%d",GEM::getCrateID(tab),GEM::getMPDID(tab)))));
+// 		fWorkZoneTabEnbeddedCanvas[tab]=new TRootEmbeddedCanvas("MainCanvas", fWorkZoneTabSubFrame[tab], 600,600);
+// 		fWorkZoneTabEnbeddedCanvas[tab]->GetCanvas()->SetBorderMode(0);
+// 		fWorkZoneTabEnbeddedCanvas[tab]->GetCanvas()->SetGrid();
+// 		fWorkZoneTabSubFrame[tab]->AddFrame(fWorkZoneTabEnbeddedCanvas[tab],new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+// 		cfWorkZoneTabCanvas[tab]=fWorkZoneTabEnbeddedCanvas[tab]->GetCanvas();
+// 	}
+// }
+
+void UserGuiMainFrame::SetWorkZoneTab(std::map<int, std::map<int, std::string>> tablist){
 	fWorkZoneTabSubFrame.clear();
 	fWorkZoneTabEnbeddedCanvas.clear();
 	cfWorkZoneTabCanvas.clear();
-	for(auto tab:tablist){
-		fWorkZoneTabSubFrame[tab]=((fWorkZoneTab->AddTab(Form("crate%d_mpd%d",GEM::getCrateID(tab),GEM::getMPDID(tab)))));
-		fWorkZoneTabEnbeddedCanvas[tab]=new TRootEmbeddedCanvas("MainCanvas", fWorkZoneTabSubFrame[tab], 600,600);
-		fWorkZoneTabEnbeddedCanvas[tab]->GetCanvas()->SetBorderMode(0);
-		fWorkZoneTabEnbeddedCanvas[tab]->GetCanvas()->SetGrid();
-		fWorkZoneTabSubFrame[tab]->AddFrame(fWorkZoneTabEnbeddedCanvas[tab],new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-		cfWorkZoneTabCanvas[tab]=fWorkZoneTabEnbeddedCanvas[tab]->GetCanvas();
-	}
-}
 
-void UserGuiMainFrame::SetWorkZoneTab(std::map<int,std::string> tablist){
-	fWorkZoneTabSubFrame.clear();
-	fWorkZoneTabEnbeddedCanvas.clear();
-	cfWorkZoneTabCanvas.clear();
-	for(auto tab = tablist.begin();tab!=tablist.end();tab++){
-		fWorkZoneTabSubFrame[tab->first]=fWorkZoneTab->AddTab(tab->second.c_str());
-		fWorkZoneTabEnbeddedCanvas[tab->first]=new TRootEmbeddedCanvas("MainCanvas", fWorkZoneTabSubFrame[tab->first], 600,600);
-		fWorkZoneTabEnbeddedCanvas[tab->first]->GetCanvas()->SetBorderMode(0);
-		fWorkZoneTabEnbeddedCanvas[tab->first]->GetCanvas()->SetGrid();
-		fWorkZoneTabSubFrame[tab->first]->AddFrame(fWorkZoneTabEnbeddedCanvas[tab->first],new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-		cfWorkZoneTabCanvas[tab->first]=fWorkZoneTabEnbeddedCanvas[tab->first]->GetCanvas();
+	TString canvasName, tabName;
+	int topTab, nestedTab;
+	std::map<int, std::string> nestedTabs; 
 
+	TGCompositeFrame *tf1, *tf2;
+
+	for (auto tab = tablist.begin(); tab!=tablist.end(); tab++){
+		topTab = tab->first; // int; for raw data, this should be crate ID
+		nestedTabs = tab->second; // map<int,string>; for raw data, these strings look like "crate%d_mpd%d"
+
+		// Create tab for ith crate
+		tf1 = fWorkZoneTab->AddTab(Form("crate%d",topTab));
+		fWorkZoneTabSubFrame[topTab] = new TGCompositeFrame(tf1, 600, 600, kHorizontalFrame);
+		fNestedTab[topTab] = new TGTab(fWorkZoneTabSubFrame[topTab], 600, 600);
+
+		for (auto tab2: nestedTabs) {
+			nestedTab = tab2.first; // for raw data, this should be mpd id
+			tabName   = tab2.second; // crate%d_mpd%d
+
+			// Add nested tab
+			tf2 = fNestedTab[topTab]->AddTab(tabName);
+
+			// Create frame for this nested tab
+			fWorkZoneTabSubSubFrame[topTab][nestedTab] = new TGCompositeFrame(tf2, 800, 600, kHorizontalFrame);
+
+			// Create canvas for this frame
+			canvasName = Form("c_%d_%d", topTab, nestedTab);
+			fWorkZoneTabEnbeddedCanvas[topTab][nestedTab] = new TRootEmbeddedCanvas(canvasName.Data(), fWorkZoneTabSubSubFrame[topTab][nestedTab], 800, 600);
+			fWorkZoneTabEnbeddedCanvas[topTab][nestedTab]->GetCanvas()->SetBorderMode(0);
+			fWorkZoneTabEnbeddedCanvas[topTab][nestedTab]->GetCanvas()->SetGrid();
+			cfWorkZoneTabCanvas[topTab][nestedTab] = fWorkZoneTabEnbeddedCanvas[topTab][nestedTab]->GetCanvas();
+
+			// Add canvas to the frame
+			fWorkZoneTabSubSubFrame[topTab][nestedTab]->AddFrame(fWorkZoneTabEnbeddedCanvas[topTab][nestedTab],
+																new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+
+			// Add frame to the nested tab
+			tf2->AddFrame(fWorkZoneTabSubSubFrame[topTab][nestedTab]);
+		}
+
+		// Add nested tabs to the crate's frame
+		fWorkZoneTabSubFrame[topTab]->AddFrame(fNestedTab[topTab], new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+		// Add the crate's frame to its tab
+		tf1->AddFrame(fWorkZoneTabSubFrame[topTab], new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 	}
 }
 
@@ -423,13 +461,16 @@ Bool_t UserGuiMainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t) {
 			}
 			break;
 	case kC_COLORSEL:
-		for(auto canvas_iter = fWorkZoneTabEnbeddedCanvas.begin();canvas_iter != fWorkZoneTabEnbeddedCanvas.end(); canvas_iter++ ){
-			auto canvas=canvas_iter->second;
-			canvas->GetCanvas()->SetFillColor(TColor::GetColor(fColorSel->GetColor()));
-			canvas->GetCanvas()->Modified();
-			canvas->GetCanvas()->Update();
-			gSystem->ProcessEvents();
-		}
+		// for(auto iter = fWorkZoneTabEnbeddedCanvas.begin(); iter!=fWorkZoneTabEnbeddedCanvas.end(); iter++) {
+			// auto canvases = iter->second;
+			// for(auto iter2 = canvases.begin(); iter2!=canvases.end(); iter2++) {
+				// auto canvas=iter2->second;
+				// canvas->GetCanvas()->SetFillColor(TColor::GetColor(fColorSel->GetColor()));
+				// canvas->GetCanvas()->Modified();
+				// canvas->GetCanvas()->Update();
+				// gSystem->ProcessEvents();
+			// }
+		// }
 		break;
 	default:
 		break;
@@ -744,37 +785,70 @@ void UserGuiMainFrame::fHitModeProcess(int entries,string Pedestal_name,vector<s
 		std::cout<<"Working on file : "<< file.c_str()<<std::endl
 				<<"Pedestal file    : "<<pedestalfname.c_str()<<std::endl
 				<<"Save file name   : "<<savefilename.c_str()<<std::endl;
-//		decoder->HitMode(pedestalfname.c_str(),savefilename.c_str());
 		decoder->HiModeTest(pedestalfname.c_str(),savefilename.c_str());
 	}
 }
 
 void UserGuiMainFrame::fCanvasDraw(GUICanvasDataStream *data){
-	// new canvas functions
-	data->generateHisto();
-	std::map<int/*tab*/,std::map<int /*x*/,std::map<int/*y*/,TH1F *>>> histArr=data->GetHisto1dArray();
-	int x_divide=data->GetCanvasDivied().X(),y_divide=data->GetCanvasDivied().Y();
-	for(auto tab = histArr.begin(); tab!=histArr.end();tab++){
-		int tabid=tab->first;
-		if(cfWorkZoneTabCanvas.find(tabid)!=cfWorkZoneTabCanvas.end()){
 
-			cfWorkZoneTabCanvas[tabid]->Clear();
-			cfWorkZoneTabCanvas[tabid]->ResetAttPad();
-			// TODO
-			cfWorkZoneTabCanvas[tabid]->Divide(x_divide,y_divide);
-			for(auto x_canvas = (tab->second).begin(); x_canvas!=(tab->second).end();x_canvas++){
-				for(auto y_canvas = (x_canvas->second).begin();y_canvas!=(x_canvas->second).end();y_canvas++){
-					int canvasid=(y_canvas->first)*int(x_divide)+x_canvas->first;
-					cfWorkZoneTabCanvas[tabid]->cd(canvasid+1);
-					y_canvas->second->Draw("HIST");
-				}
-			}
-			cfWorkZoneTabCanvas[tabid]->Modified();
-			cfWorkZoneTabCanvas[tabid]->Update();
-		}else{
-			std::cout<<__FUNCTION__<<__LINE__<< " [WORNING] "<<"Can NOT find "<< tab ->first<<" in the canvas"<<std::endl;
-		}
-	}
+	// Generate histograms (see GUIInforCenter.h for details)
+	data->generateHisto();
+
+	// Get histograms now that they've been generated
+	std::map<int/*tab1*/,std::map<int/*tab2*/,std::map<int /*x*/,std::map<int/*y*/,TH1F *>>>> histos=data->GetHisto1dArray();
+
+	// Find out how to divide the canvases
+	int x_divide=data->GetCanvasDivied().X();
+	int y_divide=data->GetCanvasDivied().Y();
+
+	int topTab, nestedTab;
+	int canvasX, canvasY, canvasIndex;
+
+	// Loop over histograms in map
+	// This first loop is over crates for raw data
+	for(auto tab = histos.begin(); tab!=histos.end();tab++){
+		// Get top level tab id
+		topTab = tab->first;
+
+		// This loop is over MPDs for raw data
+		for(auto tab2 = histos.begin(); tab!=histos.end();tab++){
+			// Get nested tab id
+			nestedTab = tab2->first;
+
+			// Clear this canvas
+			cfWorkZoneTabCanvas[topTab][nestedTab]->Clear();
+			cfWorkZoneTabCanvas[topTab][nestedTab]->ResetAttPad();
+
+			// Divide canvas into e.g. 4x4 for raw data
+			cfWorkZoneTabCanvas[topTab][nestedTab]->Divide(x_divide,y_divide);
+
+			// Loop over each pad in the canvas and draw a histogram in it
+			// This loop is over APVs for raw data
+			for(auto x_canvas = (tab2->second).begin(); x_canvas!=(tab2->second).end(); x_canvas++){
+				for(auto y_canvas = (x_canvas->second).begin(); y_canvas!=(x_canvas->second).end(); y_canvas++){
+
+					// Get pad location in the canvas
+					canvasX = x_canvas->first;
+					canvasY = y_canvas->first;
+
+					// Canvases are indexed from 1, not 0.
+					canvasIndex = canvasY*x_divide + canvasX + 1;
+
+					// cd to pad
+					cfWorkZoneTabCanvas[topTab][nestedTab]->cd(canvasIndex);
+
+					// Draw histogram
+					histos[topTab][nestedTab][canvasX][canvasY]->Draw("HIST");
+
+				} // canvas y loop
+			} // canvas x loop
+
+			// Update this canvas
+			cfWorkZoneTabCanvas[topTab][nestedTab]->Modified();
+			cfWorkZoneTabCanvas[topTab][nestedTab]->Update();
+		} // nested tab loop
+	} // top level tab loop
+
 	gSystem->ProcessEvents();
 }
 

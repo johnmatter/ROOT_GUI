@@ -705,24 +705,51 @@ bool MPDDecoder::ReadBlock(){
 	clear(); // start a new event
 	if(chan->read()){
 		evio::evioDOMTree event(chan);
-		evio::evioDOMNodeListP mpdEventList = event.getNodeList( evio::isLeaf() );
-		for(evio::evioDOMNodeList::iterator iter = mpdEventList->begin();
-				iter != mpdEventList->end(); iter++){
+		evio::evioDOMNodeListP bankList = event.getNodeList( evio::isLeaf() );
+
+		int crateid = -1;
+		vector<uint32_t> *block_vec;
+
+		for(evio::evioDOMNodeList::iterator iter = bankList->begin();
+				iter != bankList->end(); iter++){
+
+			int contentType=(*iter)->getContentType();
 			int banktag=(*iter)->tag;
-			vector<uint32_t> *block_vec = (*iter)->getVector<uint32_t>();
-			switch (banktag) {
-				case GEM::MPD_tag:
-					unsigned int iend;
-					for(iend =0; iend< block_vec->size();iend++){
-						uint32_t tag=((*block_vec).at(iend)>>24)&0xf8;
-						if(tag==0x90||tag==0x88)break;
-					}
-					block_vec_mpd.insert(block_vec_mpd.begin(),block_vec->begin(),block_vec->begin()+iend);
+			std::cout << "type:tag = " << contentType << ":" << banktag << std::endl; // JMDEBUG
+			switch (contentType) {
+				case 0x10:
+					crateid = (GEM::CRATE_ID<<21)|banktag;
+					break;
+				case 0x1:
+					switch (banktag) {
+						case GEM::MPD_tag:
+							block_vec = (*iter)->getVector<uint32_t>();
+							unsigned int iend;
+							uint32_t tag;
+							for(iend =0; iend< block_vec->size();iend++){
+								tag=((*block_vec).at(iend)>>24)&0xf8;
+								if(tag==0x90||tag==0x88)break;
+							}
+
+							// Insert APV data
+							block_vec_mpd.insert(block_vec_mpd.begin(),block_vec->begin(),block_vec->begin()+iend);
+
+							// Prepend word encoding crate ID
+							if (crateid==-1) {
+								std::cout 	<< "[WARNING] " << __FUNCTION__ << " " << __LINE__
+											<< "crateid wasn't set before inserting data"
+											<< std::endl;
+							}
+							block_vec_mpd.insert(block_vec_mpd.begin(), crateid);
+							break;
+						default:
+							break;
+					} // switch on type=0x1 tag number
 					break;
 				default:
 					break;
-			}
-		}
+			} // switch on content type
+		} // loop over evioDOMNodeList
 		return true;
 	}else{
 		return false;

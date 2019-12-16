@@ -22,31 +22,43 @@
 #include "../GEMDetector/GEMUIDGenerator.h"
 
 struct GUICanvasDataStream{
+
 public:
 	GUICanvasDataStream(){
 	};
-	TVector2 GetCanvasDivied(){
 
+	TVector2 GetCanvasDivied(){
 		return size;
 	}
+
+	Int_t GetTabNestLevel(){
+		return tabNestLevel;
+	}
+
+	// Is this used anywhere?
 	const unsigned int GetCanvasNumber(){
 		return histo_1h_arry.size();
 	}
+
 	std::map<int/*tab*/,std::vector<TH1F*>> GetHisto1D(){
 		generateHisto();
 		return histo_1h;
 	}
-	const std::map<int/*tab*/,std::map<int /*x*/,std::map<int/*y*/,TH1F *>>> GetHisto1dArray(){
+
+	const std::map<int/*crate tab*/, std::map<int /*mpd tab*/, std::map<int /*canvas x*/,std::map<int/*canvas y*/,TH1F *>>>> GetHisto1dArray(){
 		return histo_1h_arry;
 	}
+
 	std::map<int/**/,std::vector<int>> GetRaw(){
 		return data;
 	}
+
 	void LoadData(const std::map<int/**/,std::vector<int>> &data){
 		clear();
 		this->data=data;
 		//generateHisto(data);
 	}
+
 	void LoadData(std::map<int, std::map<int,std::vector<TH1F *>>> const data){
 		clear();
 		this->canvasedDisplay=data;
@@ -60,65 +72,74 @@ public:
 			ZeroSubGenerateHisto();
 		}
 	}
+
 private:
+	TVector2 size;
+	Int_t tabNestLevel;
+	std::map<int/**/,std::vector<int>> data;
+	std::map<int/*tab*/,std::vector<TH1F*>> histo_1h;
+	std::map<int/*crate tab*/, std::map<int /*mpd tab*/, std::map<int /*canvas x*/,std::map<int/*canvas y*/,TH1F *>>>> histo_1h_arry;
+	std::map<int, std::map<int,std::vector<TH1F *>>> canvasedDisplay;
+
 	void RawGenerateHisto(){
 		std::map<int,std::vector<int>> rawdata = this->data;
-		std::map<int,std::vector<std::vector<int>>> tabrawdata;
-		for(auto apv = rawdata.begin();apv!=rawdata.end();apv++){
-			int crateid=GEM::getCrateID(apv->first);
-			int mpdid=GEM::getMPDID(apv->first);
-			int id=GEM::GetUID(crateid,mpdid,0,0);
-			tabrawdata[id].push_back(apv->second);
-		}
+		std::vector<int> strip_data;
+		int crateid, mpdid, adcid, uid;
+		TH1F *h;
+		TString histo_name;
 
-		std::map<int, std::vector<TH1F *>> tabHistoArray;
+		tabNestLevel = 2;
 
-		for(auto mpd_iter = tabrawdata.begin();mpd_iter!=tabrawdata.end();mpd_iter++){
-				int tabcanvasid=mpd_iter->first;
-				{
-					int i =0;
-					for(auto apv : mpd_iter->second){
-									TH1F *h = new TH1F(
-											Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
-													GEM::getMPDID(tabcanvasid)),
-											Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
-													GEM::getMPDID(tabcanvasid)), 800, 0, 800);
-									for(int j = 0; j <apv.size(); j++){
-										h->Fill(j+1, apv.at(j));
-										h->GetYaxis()->SetRangeUser(0,3000);
-										h->SetYTitle("ADC");
-										h->SetXTitle("channel");
-									}
-									histo_1h[tabcanvasid].push_back(h);
-									histo_1h_arry[tabcanvasid][i%4][i/4]=h;
-									histo_1h_arry[tabcanvasid][i%4][i/4]->SetTitle(Form("crate%d_mpd%d", GEM::getCrateID(tabcanvasid),
-											GEM::getMPDID(tabcanvasid)));
-									i++;
-					}
-				}
+		// Used to keep track of position in the tab's 4x4 layout of histograms
+		int i = 0;
+
+		// Loop over APVs and generate histograms
+		// rawdata is a map from an apv's UID to the vector<int> contaning its strips' data
+		for(auto apv = rawdata.begin(); apv!=rawdata.end(); apv++){
+
+			crateid = GEM::getCrateID(apv->first);
+			mpdid = GEM::getMPDID(apv->first);
+			mpdid = GEM::getADCID(apv->first);
+			uid = GEM::GetUID(crateid, mpdid, 0, 0);
+			std::cout << "uid:apv->first = " << uid << ":" << apv->first << std::endl; //JMDEBUG
+
+			// Create a histogram for this APV
+			histo_name = Form("crate%d_mpd%d_apv%d", crateid, mpdid, adcid); 
+			h = new TH1F(histo_name.Data(), histo_name.Data(), 800, 0, 800);
+
+			// Fill histogram with ADC per strip
+			strip_data = apv->second;
+			for(int j = 0; j < strip_data.size(); j++){
+				h->Fill(j+1, strip_data.at(j));
+				h->GetYaxis()->SetRangeUser(0,3000);
+				h->SetYTitle("ADC");
+				h->SetXTitle("channel");
+			}
+
+			// Store histogram for drawing elsewhere
+			histo_1h[uid].push_back(h);
+			histo_1h_arry[crateid][mpdid][i%4][i/4]=h;
+
+			// Increment 4x4 layout counter
+			i++;
 		}
 		size.Set(4.0,4.0);
 	}
+
 	void ZeroSubGenerateHisto(){
 		histo_1h_arry.clear();
 		for (auto tab = canvasedDisplay.begin(); tab != canvasedDisplay.end(); tab++) {
 			for (auto dimension = tab->second.begin();
 					dimension != tab->second.end(); dimension++) {
 				for (unsigned int i = 0; i < (dimension->second).size(); i++) {
-					histo_1h_arry[tab->first][dimension->first][i] =
+					histo_1h_arry[0][tab->first][dimension->first][i] =
 							dimension->second.at(i);
 				}
 			}
 		}
 		size.Set(2., 4.);
+		tabNestLevel = 1;
 	}
-private:
-
-	TVector2 size;
-	std::map<int/**/,std::vector<int>> data;
-	std::map<int/*tab*/,std::vector<TH1F*>> histo_1h;
-	std::map<int/*tab*/,std::map<int /*x*/,std::map<int/*y*/,TH1F *>>> histo_1h_arry;
-	std::map<int, std::map<int,std::vector<TH1F *>>> canvasedDisplay;
 
 	void clear(){
 		data.clear();

@@ -153,10 +153,13 @@ private:
 private:
 	TGTab *fWorkZoneTab;
 	TGCompositeFrame *fWorkZoneTabDefultFrame;
-	std::map<int /*tab id*/,TGCompositeFrame *>fWorkZoneTabSubFrame;
-	std::map<int /*tab id*/,TRootEmbeddedCanvas *>fWorkZoneTabEnbeddedCanvas;
-	std::map<int ,TCanvas *> cfWorkZoneTabCanvas;
-
+	// id 1 refers to top level tab.
+	// id 2 refers to the second (i.e. nested) tab level
+	std::map<int /*tab id 1*/, TGCompositeFrame *> fWorkZoneTabSubFrame;
+	std::map<int /*tab id 1*/, std::map<int /*tab id 2*/, TRootEmbeddedCanvas *>> fWorkZoneTabEnbeddedCanvas;
+	std::map<int /*tab id 1*/, std::map<int /*tab id 2*/, TCanvas *>> cfWorkZoneTabCanvas;
+	std::map<int /*tab id 2*/, TGTab *> fNestedTab;
+	std::map<int, std::map<int, TGCompositeFrame*>> fWorkZoneTabSubSubFrame;
 
 private:
 	TGVerticalFrame *fWorkZoneControlFrame;
@@ -217,8 +220,8 @@ private:
 	void SetWorkZone();    // set the workspace
 	// set the tab
 	void SetWorkZoneTab();
-	void SetWorkZoneTab(std::vector<int>);
-	void SetWorkZoneTab(std::map<int,std::string>);
+	// void SetWorkZoneTab(std::vector<int>);
+	void SetWorkZoneTab(std::map<int,std::map<int,std::string>>);
 
 	void SetWorkZoneButton();
 	void SetWorkZoneDataInput();
