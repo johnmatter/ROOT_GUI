@@ -129,6 +129,7 @@ private:
 			i++;
 		}
 		size.Set(4.0,4.0);
+		std::cout << "Finished generating raw histograms; count=" << (i+1) << std::endl; // JMDEBUG
 	}
 
 	void ZeroSubGenerateHisto(){

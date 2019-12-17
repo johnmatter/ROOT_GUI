@@ -797,6 +797,8 @@ void UserGuiMainFrame::fCanvasDraw(GUICanvasDataStream *data){
 	// Get histograms now that they've been generated
 	std::map<int/*tab1*/,std::map<int/*tab2*/,std::map<int /*x*/,std::map<int/*y*/,TH1F *>>>> histos=data->GetHisto1dArray();
 
+	std::cout << "Got histograms in fCanvasDraw" << std::endl; // JMDEBUG
+
 	// Find out how to divide the canvases
 	int x_divide=data->GetCanvasDivied().X();
 	int y_divide=data->GetCanvasDivied().Y();
@@ -814,6 +816,8 @@ void UserGuiMainFrame::fCanvasDraw(GUICanvasDataStream *data){
 		for(auto tab2 = histos.begin(); tab!=histos.end();tab++){
 			// Get nested tab id
 			nestedTab = tab2->first;
+
+			std::cout << "top:nested tab ids = " << topTab << ":" << nestedTab << std::endl; // JMDEBUG
 
 			// Clear this canvas
 			cfWorkZoneTabCanvas[topTab][nestedTab]->Clear();
