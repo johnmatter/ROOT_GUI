@@ -99,9 +99,14 @@ private:
 
 			crateid = GEM::getCrateID(apv->first);
 			mpdid = GEM::getMPDID(apv->first);
-			mpdid = GEM::getADCID(apv->first);
+			adcid = GEM::getADCID(apv->first);
 			uid = GEM::GetUID(crateid, mpdid, 0, 0);
-			std::cout << "uid:apv->first = " << uid << ":" << apv->first << std::endl; //JMDEBUG
+			std::cout << "crate:mpd:adc:uid:apv->first = "
+					<< crateid << ":" 
+					<< mpdid << ":" 
+					<< adcid << ":" 
+					<< uid << ":" 
+					<< apv->first << std::endl; //JMDEBUG
 
 			// Create a histogram for this APV
 			histo_name = Form("crate%d_mpd%d_apv%d", crateid, mpdid, adcid); 
