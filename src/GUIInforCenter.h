@@ -100,7 +100,7 @@ private:
 			crateid = GEM::getCrateID(apv->first);
 			mpdid = GEM::getMPDID(apv->first);
 			adcid = GEM::getADCID(apv->first);
-			uid = GEM::GetUID(crateid, mpdid, 0, 0);
+			uid = GEM::GetUID(crateid, mpdid, adcid, 0);
 			std::cout << "crate:mpd:adc:uid:apv->first = "
 					<< crateid << ":" 
 					<< mpdid << ":" 
