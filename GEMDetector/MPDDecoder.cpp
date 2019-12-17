@@ -724,7 +724,7 @@ bool MPDDecoder::ReadBlock(){
 				case 0x1:
 					switch (banktag) {
 						case GEM::MPD_tag:
-							std::cout << "I think this is an MPD in a crate whose tag is " << banktag << std::endl; // JMDEBUG
+							std::cout << "I think this is an MPD in a crate whose tag is " << crateid << std::endl; // JMDEBUG
 							block_vec = (*iter)->getVector<uint32_t>();
 							unsigned int iend;
 							uint32_t tag;
