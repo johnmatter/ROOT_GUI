@@ -705,7 +705,7 @@ bool MPDDecoder::ReadBlock(){
 	clear(); // start a new event
 	if(chan->read()){
 		evio::evioDOMTree event(chan);
-		evio::evioDOMNodeListP bankList = event.getNodeList( evio::isLeaf() );
+		evio::evioDOMNodeListP bankList = event.getNodeList( evio::isContainer() );
 
 		int crateid = -1;
 		vector<uint32_t> *block_vec;
